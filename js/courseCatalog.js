@@ -91,13 +91,28 @@ function buildCourseLinks(course_info) {
 	} = course_info
 	links = {
 		"textbook": `https://www.universitycoop.com/adoption-search-results?sn=${semester_code}__${department}__${number}__${unique}`,
-		"syllabi": `https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=&semester=&department=${department}&course_number=${number}&course_title=&unique=&instructor_first=&instructor_last=${prof_name}&course_type=In+Residence&search=Search`,
+		"syllabi": getSyllabi(course_info),
 		//default ones (before first name can be used)
 		"rate_my_prof": "http://www.ratemyprofessors.com/campusRatings.jsp?sid=1255",
 		"ecis": "http://utdirect.utexas.edu/ctl/ecis/results/index.WBX?"
 	}
 	course_info["links"] = links;
 	return course_info;
+}
+
+function getSyllabi(course_info){
+	//if a dept changes its name in the future add it here [old, new].
+	changedDepts  = [
+		["E E", "ECE"],
+	];	
+
+	if(changedDepts.includes(course_info.department)){
+		let page = fetch(`https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=&semester=&department=${changedDepts[0][0]}&course_number=${number}&course_title=&unique=&instructor_first=&instructor_last=${prof_name}&course_type=In+Residence&search=Search`)
+		console.log(page);
+	}
+	else{
+		return `https://utdirect.utexas.edu/apps/student/coursedocs/nlogon/?year=&semester=&department=${department}&course_number=${number}&course_title=&unique=&instructor_first=&instructor_last=${course_info.prof_name}&course_type=In+Residence&search=Search`
+	}
 }
 
 function buildBasicCourseInfo(row, course_name, individual) {

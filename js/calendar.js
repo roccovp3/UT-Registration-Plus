@@ -63,10 +63,21 @@ function setUpModal() {
         status,
         registerlink
     } = curr_course;
-    $("#classname").html(`${coursename} <span style='font-size:small'>(${unique})</span>`);
     buildTimeTitle(datetimearr);
-    $("#prof").html(`with <span style='font-weight:bold;'>${capitalizeString(profname)}</span>`);
-    setRegisterButton(status, registerlink)
+    if(!unique.includes("custom")) {
+        $("#prof").html(`with <span style='font-weight:bold;'>${capitalizeString(profname)}</span>`);
+        $("#classname").html(`${coursename} <span style='font-size:small'>(${unique})</span>`);
+        $("#register").css("display", "inline");
+        $("#info").css("display", "inline");
+        $("#remove").css("margin-left", "10px");
+        setRegisterButton(status, registerlink);
+    } else {
+        $("#prof").html("");
+        $("#classname").html(`${coursename}`);
+        $("#register").css("display", "none");
+        $("#info").css("display", "none");
+        $("#remove").css("margin-left", "0px");
+    }
 }
 
 function setRegisterButton(status, registerlink) {
@@ -107,6 +118,8 @@ function buildEventSource(saved_courses) {
             hours += Math.floor(class_length/2);
         } else if (["X","Y","Z"].includes(multi_semester_code)) {
             hours += Math.floor(class_length/3);
+        } else if (saved_courses[i].unique.includes("custom")) {
+            hours += 0;
         } else {
             hours += class_length;
         }
@@ -151,6 +164,11 @@ function setEventForSection(session, colorCounter, i) {
         index: i,
         allday: false
     };
+
+    if(course.unique.includes("custom")) {
+        event_obj.title = `${coursename}`;
+    }
+
     return event_obj;
 }
 
@@ -238,6 +256,55 @@ $("#export").click(function () {
     cal.download("My_Course_Calendar");
 });
 
+$("#addblock").click(function () {
+    var startTime = document.getElementById("starttimeselect").value;
+    var endTime = document.getElementById("endtimeselect").value;
+    var fullName = document.getElementById("nameselect").value;
+
+    selectedDays = getSelectedDays();
+
+    if (startTime != "" && endTime != "") {
+        let unique = "custom"+selectedDays.toString()+startTime+endTime+fullName;
+        let prof_name = "";
+        let dtarr = [];
+        for(var i = 0; i < selectedDays.length; i++) {
+            dtarr.push([selectedDays[i],[startTime, endTime],""])
+        }
+    
+        var c = new Course(fullName, unique, prof_name, dtarr, "", "", "");
+        chrome.runtime.sendMessage({
+            command: "courseStorage",
+            course: c,
+            action: "add"
+        }, function (response) {
+            chrome.runtime.sendMessage({
+                command: "updateCourseList"
+            });
+        });
+    }
+});
+
+function getSelectedDays() {
+    var checkboxes = document.getElementsByName('day');
+    var selectedDays = [];
+
+    for (var i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i].checked) {
+            selectedDays.push(checkboxes[i].value);
+        }
+    }
+
+    console.log("Selected Days: " + selectedDays.join(', '));
+    return selectedDays;
+}
+
+function getSelectedValues() {
+    
+
+    console.log("Selected Day: " + selectedDay);
+    console.log("Start Time: " + startTime);
+    console.log("End Time: " + endTime);
+}
 
 function buildICSFile(cal, event) {
     let {

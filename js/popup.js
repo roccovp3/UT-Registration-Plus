@@ -23,14 +23,16 @@ function setCourseList() {
             let { department, number } = separateCourseNameParts(coursename);
             let class_length = parseInt(number.charAt(0));
             let multi_semester_code = number.slice(-1);
-            if (["A", "B"].includes(multi_semester_code)) {
-                hours += Math.floor(class_length / 2);
-            } else if (["X", "Y", "Z"].includes(multi_semester_code)) {
-                hours += Math.floor(class_length / 3);
+            if (["A","B"].includes(multi_semester_code)) {
+                hours += Math.floor(class_length/2);
+            } else if (["X","Y","Z"].includes(multi_semester_code)) {
+                hours += Math.floor(class_length/3);
+            } else if (courses[i].unique.includes("custom")) {
+                hours += 0;
             } else {
                 hours += class_length;
             }
-            let list_html = Template.Popup.list_item(i, list_tile_color, unique, department, number, profname, list_sub_color, line);
+            let list_html = Template.Popup.list_item(i, list_tile_color, unique, department, number, profname, list_sub_color, line, coursename);
             $("#courseList").append(list_html);
         }
         $("#meta-metric").text(hours);

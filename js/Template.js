@@ -119,8 +119,9 @@ Template.Calendar = class {
     }
 };
 Template.Popup = class {
-    static list_item(i, list_tile_color, unique, department, number, profname, list_sub_color, line) {
-        return `<li id='${i}' class='course_list_item'>
+    static list_item(i, list_tile_color, unique, department, number, profname, list_sub_color, line, coursename) {
+        if(!unique.includes("custom")) {
+            return `<li id='${i}' class='course_list_item'>
                                 <div class='card course_list_card'>
                                     <div class='container' style='background:${list_tile_color}'>
                                         <button class='copy_button' title='Copy Unique #' value='${unique}'>
@@ -141,6 +142,27 @@ Template.Popup = class {
                                     </div>
                                 </div>
                             </li>`;
+        } else {
+            return `<li id='${i}' class='course_list_item'>
+                                <div class='card course_list_card'>
+                                    <div class='container' style='background:${list_tile_color}'>
+                                        <button class='copy_button' title='Copy Unique #' value='${unique}'>
+                                            <i id='copyicon' class="material-icons copy_button_icon">content_copy</i>
+                                        </button>
+                                        <h4 class='course_name_truncate_box'>
+                                            <b>${coursename}</b>
+                                        </h4>
+                                        <p id='arrow' class='arrow'>&#9658;</p>
+                                    </div>
+                                </div>
+                                <div id='moreInfo' class='course_list_item_options'>
+                                    <p style='background-color:${list_sub_color};' class='course_list_item_time_box'>${line}</p>
+                                    <div id='infoButtons' class='course_list_item_options_button_container'>
+                                        <button class='material_button course_list_item_options_buttons remove_button' id='listRemove'>Remove</button>
+                                    </div>
+                                </div>
+                            </li>`;
+        }
     }
 
     static conflict_message(conflict_message) {
